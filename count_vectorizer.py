@@ -1,11 +1,10 @@
-#  flake8 tested
+from collections import Counter
+
 
 class CountVectorizer:
     def __init__(self):
-        """
-        Constructor, creates an example of a class
-        """
         self.vocabulary = []
+        self.vector = []
 
     def fit_transform(self, corpus):
         """
@@ -15,14 +14,15 @@ class CountVectorizer:
         :param corpus: list of strings (sentences)
         :return: list of lists of ints
         """
-        sentence_words = [sentence.lower().split() for sentence in corpus]
-        all_words = [word for word in sentence_words for word in word]
-        self.vocabulary = list(dict.fromkeys(all_words))
-        return [
-               [word.count(word_from_vocabulary)
-                for word_from_vocabulary in self.vocabulary]
-                for word in sentence_words
-               ]
+        temp = " ".join(corpus)
+        vocabulary_template = dict.fromkeys(temp.lower().split(), 0)
+        self.vocabulary = list(vocabulary_template)
+        for sentence in corpus:
+            copy = dict(vocabulary_template)
+            vocabulary_sentence = dict(Counter(sentence.lower().split()))
+            copy.update(vocabulary_sentence)
+            self.vector.append(list(copy.values()))
+        return self.vector
 
     def get_feature_names(self):
         """
@@ -34,8 +34,8 @@ class CountVectorizer:
 
 if __name__ == "__main__":
     corpus = [
-        'Crock Pot Pasta Never boil pasta again',
-        'Pasta Pomodoro Fresh ingredients Parmesan to taste'
+        "Crock Pot Pasta Never boil pasta again",
+        "Pasta Pomodoro Fresh ingredients Parmesan to taste",
     ]
     vectorizer = CountVectorizer()
     count_matrix = vectorizer.fit_transform(corpus)
